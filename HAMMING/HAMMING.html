@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Hamming by Motik</title> 
+        <script>
+            function EncodeHamming()
+            {
+                let inputData = document.getElementById('inputData').value;
+                let inputBits = inputData.split(''); 
+
+                // Преобразование каждого символа в число
+                for (let i = 0; i < inputBits.length; i++) {                    
+                    inputBits[i] = parseInt(inputBits[i]);
+                }
+
+                // Добавление контрольных битов
+                inputBits.push('*');
+                inputBits.push('*');
+                inputBits.splice(3, 0, '*');
+
+                let bitPositions = {};
+                for (let i = 0; i < inputBits.length; i++) {
+                    if (inputBits[i] === 1) {
+                        bitPositions[7 - i] = (7 - i).toString(2).padStart(3, '0');
+                    }
+                }
+
+                let parityBits = '';
+                for (let i = 0; i < 3; i++) {
+                    let paritySum = 0;
+                    for (let position in bitPositions) {
+                        paritySum += parseInt(bitPositions[position][i]);
+                    }
+                    paritySum %= 2;
+                    parityBits += paritySum.toString();
+                }
+
+                // Установка значений контрольных битов
+                inputBits[6] = parityBits[2];
+                inputBits[5] = parityBits[1];
+                inputBits[3] = parityBits[0];
+
+                document.getElementById('codedData').value = inputBits.join(''); 
+            }
+
+            function DecodeHamming()
+            {
+                let encodedData = document.getElementById('codedData').value;
+                let encodedBits = encodedData.split('');
+
+                for (let i = 0; i < encodedBits.length; i++) {
+                    encodedBits[i] = parseInt(encodedBits[i]);
+                }
+
+                let bitPositions = {};
+                for (let i = 0; i < encodedBits.length; i++) {
+                    if (encodedBits[i] === 1) {
+                        bitPositions[7 - i] = (7 - i).toString(2).padStart(3, '0');
+                    }
+                }
+
+                let calculatedParity = '';
+                for (let i = 0; i < 3; i++) {
+                    let paritySum = 0;
+                    for (let position in bitPositions) {
+                        paritySum += parseInt(bitPositions[position][i]);
+                    }
+                    paritySum %= 2;
+                    calculatedParity += paritySum.toString();
+                }
+
+                if (calculatedParity === '000') {
+                    // Нет ошибок
+                    document.getElementById('decodedData').value = encodedBits.join('');
+                    document.getElementById('errorInfo').value = "No error.";
+                } else {
+                    // Исправление ошибки
+                    let errorPosition = 7 - parseInt(calculatedParity, 2);
+                    encodedBits[errorPosition] = (encodedBits[errorPosition] + 1) % 2;
+                    document.getElementById('decodedData').value = encodedBits.join('');
+                    document.getElementById('errorInfo').value = "Error was in bit position " + String(parseInt(calculatedParity, 2));
+                }
+            }
+        </script>
+    </head>
+    <body>
+        <h1>Hamming Code</h1>
+        <p> <input type='text' id='inputData'/> Input Data</p>        
+        <p> <input type='button' onclick='EncodeHamming()' value='Encode Hamming'/></p>
+        <p> <input type='text' id='codedData'/> Coded Data</p>
+        <p> <input type='button' onclick='DecodeHamming()' value="Decode Hamming"/> </p>
+        <p> <input type='text' id='decodedData'/> Decoded Data</p>
+        <p> <output id='errorInfo'></p>
+
+    </body>
+</html>
