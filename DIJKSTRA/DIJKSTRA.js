@@ -123,3 +123,11 @@ rl.question('Введите инфиксное выражение: ', (infixExpr
         validateExpression(infixExpression);
         const postfixExpression = infixToPostfix(infixExpression);
         console.log('Постфиксная запись:', postfixExpression);
+const result = evaluatePostfix(postfixExpression); // Вычисление результата
+        console.log('Результат вычисления:', result);
+    } catch (error) {
+        console.error('Ошибка:', error.message); // Обработка ошибок
+    } finally {
+        rl.close(); // Закрытие интерфейса
+    }
+});
